@@ -6,6 +6,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 import numpy as np
 import torch.nn.functional as F
+from loss.SoftTriple import SoftTriple
 
 class BaselineTrain(nn.Module):
     def __init__(self, model_func, num_class, loss_type = 'softmax'):
@@ -18,20 +19,26 @@ class BaselineTrain(nn.Module):
             self.classifier = backbone.distLinear(self.feature.final_feat_dim, num_class)
         self.loss_type = loss_type  #'softmax' #'dist'
         self.num_class = num_class
-        self.loss_fn = nn.CrossEntropyLoss()
+        #self.loss_fn = nn.CrossEntropyLoss()
+        self.loss_fn = SoftTriple(20, 0.1, 0.2, 0.01, 64, 1597, 10).cuda()
         self.DBval = False; #only set True for CUB dataset, see issue #31
 
     def forward(self,x):
         x    = Variable(x.cuda())
         out  = self.feature.forward(x)
-        scores  = self.classifier.forward(out)
-        return scores
+        return out
+
+        #scores  = self.classifier.forward(out)
+        #return scores
 
     def forward_loss(self, x, y):
-        scores = self.forward(x)
+        #scores = self.forward(x)
+        out = self.forward(x)
         y = Variable(y.cuda())
-        return self.loss_fn(scores, y )
-    
+        scores  = self.classifier.forward(out)
+        #return self.loss_fn(scores, y )
+        return self.loss_fn(out, y )
+
     def train_loop(self, epoch, train_loader, optimizer):
         print_freq = 10
         avg_loss=0
@@ -47,7 +54,7 @@ class BaselineTrain(nn.Module):
             if i % print_freq==0:
                 #print(optimizer.state_dict()['param_groups'][0]['lr'])
                 print('Epoch {:d} | Batch {:d}/{:d} | Loss {:f}'.format(epoch, i, len(train_loader), avg_loss/float(i+1)  ))
-                     
+
     def test_loop(self, val_loader):
         if self.DBval:
             return self.analysis_loop(val_loader)
@@ -65,10 +72,10 @@ class BaselineTrain(nn.Module):
                 if l not in class_file.keys():
                     class_file[l] = []
                 class_file[l].append(f)
-       
+
         for cl in class_file:
             class_file[cl] = np.array(class_file[cl])
-        
+
         DB = DBindex(class_file)
         print('DB index = %4.2f' %(DB))
         return 1/DB #DB index: the lower the better
@@ -91,8 +98,7 @@ def DBindex(cl_data_file):
     mu_i = np.tile( np.expand_dims( np.array(cl_means), axis = 0), (len(class_list),1,1) )
     mu_j = np.transpose(mu_i,(1,0,2))
     mdists = np.sqrt(np.sum(np.square(mu_i - mu_j), axis = 2))
-    
+
     for i in range(cl_num):
         DBs.append( np.max([ (stds[i]+ stds[j])/mdists[i,j]  for j in range(cl_num) if j != i ]) )
     return np.mean(DBs)
-

@@ -5,6 +5,7 @@ from torch.autograd import Variable
 import numpy as np
 import torch.nn.functional as F
 from methods.meta_template import MetaTemplate
+from loss.SoftTriple import SoftTriple
 
 class BaselineFinetune(MetaTemplate):
     def __init__(self, model_func,  n_way, n_support, loss_type = "softmax"):
@@ -13,7 +14,7 @@ class BaselineFinetune(MetaTemplate):
 
     def set_forward(self,x,is_feature = True):
         return self.set_forward_adaptation(x,is_feature); #Baseline always do adaptation
- 
+
     def set_forward_adaptation(self,x,is_feature = True):
         assert is_feature == True, 'Baseline only support testing with feature'
         z_support, z_query  = self.parse_feature(x,is_feature)
@@ -26,7 +27,7 @@ class BaselineFinetune(MetaTemplate):
 
         if self.loss_type == 'softmax':
             linear_clf = nn.Linear(self.feat_dim, self.n_way)
-        elif self.loss_type == 'dist':        
+        elif self.loss_type == 'dist':
             linear_clf = backbone.distLinear(self.feat_dim, self.n_way)
         linear_clf = linear_clf.cuda()
 
@@ -34,7 +35,7 @@ class BaselineFinetune(MetaTemplate):
 
         loss_function = nn.CrossEntropyLoss()
         loss_function = loss_function.cuda()
-        
+
         batch_size = 4
         support_size = self.n_way* self.n_support
         for epoch in range(100):
@@ -43,7 +44,7 @@ class BaselineFinetune(MetaTemplate):
                 set_optimizer.zero_grad()
                 selected_id = torch.from_numpy( rand_id[i: min(i+batch_size, support_size) ]).cuda()
                 z_batch = z_support[selected_id]
-                y_batch = y_support[selected_id] 
+                y_batch = y_support[selected_id]
                 scores = linear_clf(z_batch)
                 loss = loss_function(scores,y_batch)
                 loss.backward()
@@ -54,5 +55,3 @@ class BaselineFinetune(MetaTemplate):
 
     def set_forward_loss(self,x):
         raise ValueError('Baseline predict on pretrained feature and do not support finetune backbone')
-        
-
