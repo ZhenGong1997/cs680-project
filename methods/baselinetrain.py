@@ -6,8 +6,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 import numpy as np
 import torch.nn.functional as F
-
-import loss
+from methods.SoftTriple import SoftTriple
 class BaselineTrain(nn.Module):
     def __init__(self, model_func, num_class, loss_type = 'softmax'):
         super(BaselineTrain, self).__init__()
@@ -20,7 +19,7 @@ class BaselineTrain(nn.Module):
         self.loss_type = loss_type  #'softmax' #'dist'
         self.num_class = num_class
         # self.loss_fn = nn.CrossEntropyLoss()
-        self.loss_fn=loss.SoftTriple(20, 0.1, 0.2, 0.01, 64, 98, 10).cuda()
+        self.loss_fn=SoftTriple(20, 0.1, 0.2, 0.01, 64, 98, 10).cuda()
         self.DBval = False; #only set True for CUB dataset, see issue #31
 
     def forward(self,x):
