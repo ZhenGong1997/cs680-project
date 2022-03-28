@@ -30,7 +30,7 @@ class SoftTriple(nn.Module):
         simStruc = simInd.reshape(-1, self.cN, self.K)
         prob = F.softmax(simStruc*self.gamma, dim=2)
         simClass = torch.sum(prob*simStruc, dim=2)
-        marginM = torch.zeros(simClass.shape)#.cuda()
+        marginM = torch.zeros(simClass.shape).cuda()
         marginM[torch.arange(0, marginM.shape[0]), target] = self.margin
         lossClassify = F.cross_entropy(self.la*(simClass-marginM), target)
         if self.tau > 0 and self.K > 1:
