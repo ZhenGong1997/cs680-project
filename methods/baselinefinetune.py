@@ -5,7 +5,7 @@ from torch.autograd import Variable
 import numpy as np
 import torch.nn.functional as F
 from methods.meta_template import MetaTemplate
-
+import loss
 class BaselineFinetune(MetaTemplate):
     def __init__(self, model_func,  n_way, n_support, loss_type = "softmax"):
         super(BaselineFinetune, self).__init__( model_func,  n_way, n_support)
@@ -32,7 +32,7 @@ class BaselineFinetune(MetaTemplate):
 
         set_optimizer = torch.optim.SGD(linear_clf.parameters(), lr = 0.01, momentum=0.9, dampening=0.9, weight_decay=0.001)
 
-        loss_function = nn.CrossEntropyLoss()
+        loss_function = loss.SoftTriple(20, 0.1, 0.2, 0.01, 64, 98, 10).cuda()
         loss_function = loss_function.cuda()
         
         batch_size = 4
