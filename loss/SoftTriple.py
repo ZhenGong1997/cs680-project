@@ -41,4 +41,11 @@ class SoftTriple(nn.Module):
             return lossClassify
 
     def score(self, input):
+        centers = F.normalize(self.fc, p=2, dim=0)
+        simInd = input.matmul(centers)
+        simStruc = simInd.reshape(-1, self.cN, self.K)
+        prob = F.softmax(simStruc*self.gamma, dim=2)
+        simClass = torch.sum(prob*simStruc, dim=2)
+        marginM = torch.zeros(simClass.shape).cuda()
+        marginM[torch.arange(0, marginM.shape[0]), target] = self.margin
         return self.la*(simClass-marginM)
