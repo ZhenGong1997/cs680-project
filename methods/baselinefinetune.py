@@ -33,7 +33,8 @@ class BaselineFinetune(MetaTemplate):
 
         set_optimizer = torch.optim.SGD(linear_clf.parameters(), lr = 0.01, momentum=0.9, dampening=0.9, weight_decay=0.001)
 
-        loss_function = nn.CrossEntropyLoss()
+        #loss_function = nn.CrossEntropyLoss()
+        loss_function = SoftTriple(20, 0.1, 0.2, 0.01, self.feat_dim, self.n_way, 5).cuda()
         loss_function = loss_function.cuda()
 
         batch_size = 4
@@ -45,11 +46,13 @@ class BaselineFinetune(MetaTemplate):
                 selected_id = torch.from_numpy( rand_id[i: min(i+batch_size, support_size) ]).cuda()
                 z_batch = z_support[selected_id]
                 y_batch = y_support[selected_id]
-                scores = linear_clf(z_batch)
-                loss = loss_function(scores,y_batch)
+                #scores = linear_clf(z_batch)
+                #loss = loss_function(scores,y_batch)
+                loss = loss_function(z_batch, y_batch)
                 loss.backward()
                 set_optimizer.step()
-        scores = linear_clf(z_query)
+        #scores = linear_clf(z_query)
+        scores = loss_function.score(z_query)
         return scores
 
 

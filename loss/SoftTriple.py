@@ -39,3 +39,6 @@ class SoftTriple(nn.Module):
             return lossClassify+self.tau*reg
         else:
             return lossClassify
+
+    def score(self, input):
+        return self.la*(simClass-marginM)
