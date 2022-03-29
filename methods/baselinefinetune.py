@@ -51,8 +51,7 @@ class BaselineFinetune(MetaTemplate):
                 loss = loss_function(z_batch, y_batch)
                 loss.backward()
                 set_optimizer.step()
-        #scores = linear_clf(z_query)
-        scores = loss_function.score(z_query)
+        scores = linear_clf(z_query)
         return scores
 
 
