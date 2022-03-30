@@ -33,8 +33,8 @@ class BaselineFinetune(MetaTemplate):
 
         set_optimizer = torch.optim.SGD(linear_clf.parameters(), lr = 0.01, momentum=0.9, dampening=0.9, weight_decay=0.001)
 
-        #loss_function = nn.CrossEntropyLoss()
-        loss_function = SoftTriple(20, 0.1, 0.2, 0.01, self.feat_dim, self.n_way, 5).cuda()
+        loss_function = nn.CrossEntropyLoss()
+        #loss_function = SoftTriple(20, 0.1, 0.2, 0.01, self.feat_dim, self.n_way, 5).cuda()
         loss_function = loss_function.cuda()
 
         batch_size = 4
