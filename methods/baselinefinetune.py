@@ -41,24 +41,16 @@ class BaselineFinetune(MetaTemplate):
         support_size = self.n_way* self.n_support
         for epoch in range(100):
             rand_id = np.random.permutation(support_size)
-            avg_loss = 0
-            print_freq = 10
             for i in range(0, support_size , batch_size):
                 set_optimizer.zero_grad()
                 selected_id = torch.from_numpy( rand_id[i: min(i+batch_size, support_size) ]).cuda()
                 z_batch = z_support[selected_id]
                 y_batch = y_support[selected_id]
-                #scores = linear_clf(z_batch)
-                #loss = loss_function(scores,y_batch)
-                loss = loss_function(z_batch, y_batch)
+                scores = linear_clf(z_batch)
+                loss = loss_function(scores,y_batch)
+                #loss = loss_function(z_batch, y_batch)
                 loss.backward()
                 set_optimizer.step()
-
-                avg_loss = avg_loss+loss.item()
-
-                if i % print_freq==0:
-                    #print(optimizer.state_dict()['param_groups'][0]['lr'])
-                    print('Epoch {:d} | Batch {:d}/{:d} | Loss {:f}'.format(epoch, i, support_size, avg_loss/float(i+1)  ))
 
         scores = linear_clf(z_query)
         return scores
