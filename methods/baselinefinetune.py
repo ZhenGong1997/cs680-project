@@ -58,7 +58,7 @@ class BaselineFinetune(MetaTemplate):
 
                 if i % print_freq==0:
                     #print(optimizer.state_dict()['param_groups'][0]['lr'])
-                    print('Epoch {:d} | Batch {:d}/{:d} | Loss {:f}'.format(epoch, i, support_size, avg_loss/float(i+1)  ))  ))
+                    print('Epoch {:d} | Batch {:d}/{:d} | Loss {:f}'.format(epoch, i, support_size, avg_loss/float(i+1)  ))
 
         scores = linear_clf(z_query)
         return scores
