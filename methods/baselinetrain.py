@@ -19,8 +19,8 @@ class BaselineTrain(nn.Module):
             self.classifier = backbone.distLinear(self.feature.final_feat_dim, num_class)
         self.loss_type = loss_type  #'softmax' #'dist'
         self.num_class = num_class
-        #self.loss_fn = nn.CrossEntropyLoss()
-        self.loss_fn = SoftTriple(20, 0.1, 0.2, 0.01, self.feature.final_feat_dim, num_class, 10).cuda()
+        self.loss_fn_1 = nn.CrossEntropyLoss()
+        self.loss_fn_2 = SoftTriple(20, 0.1, 0.2, 0.01, self.feature.final_feat_dim, num_class, 10).cuda()
         self.DBval = False; #only set True for CUB dataset, see issue #31
 
     def forward(self,x):
@@ -31,7 +31,8 @@ class BaselineTrain(nn.Module):
     def forward_loss(self, x, y):
         out = self.forward(x)
         y = Variable(y.cuda())
-        return self.loss_fn(out, y ) #minimize softtriple loss
+        scores = self.classifier(out)
+        return self.loss_fn_1(scores, y) + self.loss_fn_2(out, y ) #minimize both loss
 
     def train_loop(self, epoch, train_loader, optimizer):
         print_freq = 10
