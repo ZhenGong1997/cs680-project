@@ -26,12 +26,12 @@ class BaselineTrain(nn.Module):
     def forward(self,x):
         x    = Variable(x.cuda())
         out  = self.feature.forward(x)
-        return out #returns embedding of feature extraction
+        scores = self.classifier.forward(out)
+        return out, scores #returns embedding of feature extraction
 
     def forward_loss(self, x, y):
-        out = self.forward(x)
+        out, scores = self.forward(x)
         y = Variable(y.cuda())
-        scores = self.classifier(out)
         loss = (8.0 * self.loss_fn_1(scores, y) + 2.0 * self.loss_fn_2(out, y ))/10.0
         return loss #minimize both loss
 
