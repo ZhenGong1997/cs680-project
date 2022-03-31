@@ -32,7 +32,8 @@ class BaselineTrain(nn.Module):
         out = self.forward(x)
         y = Variable(y.cuda())
         scores = self.classifier(out)
-        return self.loss_fn_1(scores, y) + self.loss_fn_2(out, y ) #minimize both loss
+        loss = (8.0 * self.loss_fn_1(scores, y) + 2.0 * self.loss_fn_2(out, y ))/10.0
+        return loss #minimize both loss
 
     def train_loop(self, epoch, train_loader, optimizer):
         print_freq = 10
