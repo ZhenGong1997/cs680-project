@@ -32,7 +32,7 @@ class BaselineTrain(nn.Module):
     def forward_loss(self, x, y):
         out, scores = self.forward(x)
         y = Variable(y.cuda())
-        loss = (6.0 * self.loss_fn_1(scores, y) + 4.0 * self.loss_fn_2(out, y ))/10.0
+        loss = (8.0 * self.loss_fn_1(scores, y) + 2.0 * self.loss_fn_2(out, y ))/10.0
         return loss #minimize both loss
 
     def train_loop(self, epoch, train_loader, optimizer):
