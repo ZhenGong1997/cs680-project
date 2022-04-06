@@ -30,9 +30,12 @@ class BaselineFinetune(MetaTemplate):
             linear_clf = backbone.distLinear(self.feat_dim, self.n_way)
         linear_clf = linear_clf.cuda()
 
-        set_optimizer = torch.optim.SGD(linear_clf.parameters(), lr = 0.01, momentum=0.9, dampening=0.9, weight_decay=0.001)
+        # set_optimizer = torch.optim.SGD(linear_clf.parameters(), lr = 0.01, momentum=0.9, dampening=0.9, weight_decay=0.001)
+        # change to Adam
+        set_optimizer = torch.optim.Adam(linear_clf.parameters(), lr = 0.1, eps=0.01, weight_decay=0.0001)
 
-        loss_function = SoftTriple(20, 0.1, 0.2, 0.01, 64, 98, 10).cuda()
+        # loss_function = nn.CrossEntropyLoss()
+        loss_function = SoftTriple(20, 0.1, 0.2, 0.01, self.n_way, self.n_way, 2).cuda()
         loss_function = loss_function.cuda()
         
         batch_size = 4
