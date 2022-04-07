@@ -22,7 +22,7 @@ from io_utils import model_dict, parse_args, get_resume_file
 def train(base_loader, val_loader, model, optimization, start_epoch, stop_epoch, params):
     if optimization == 'Adam':
         print(model.parameters())
-        optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+        optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
     else:
        raise ValueError('Unknown optimization, please define by yourself')
 

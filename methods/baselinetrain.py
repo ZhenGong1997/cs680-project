@@ -20,7 +20,7 @@ class BaselineTrain(nn.Module):
         self.loss_type = loss_type  #'softmax' #'dist'
         self.num_class = num_class
         self.loss_fn_1 = nn.CrossEntropyLoss()
-        self.loss_fn_2 = SoftTriple(20, 0.1, 0.2, 0.01, self.feature.final_feat_dim, num_class, 10).cuda()
+        self.loss_fn_2 = SoftTriple(20, 0.1, 0.2, 0.01, self.feature.final_feat_dim, num_class, 5).cuda()
         self.DBval = False; #only set True for CUB dataset, see issue #31
 
     def forward(self,x):
@@ -32,7 +32,7 @@ class BaselineTrain(nn.Module):
     def forward_loss(self, x, y):
         out, scores = self.forward(x)
         y = Variable(y.cuda())
-        loss = (5.0 * self.loss_fn_1(scores, y) + 5.0 * self.loss_fn_2(out, y ))/10.0
+        loss = (8.0 * self.loss_fn_1(scores, y) + 2.0 * self.loss_fn_2(out, y ))/10.0
         return loss #minimize both loss
 
     def train_loop(self, epoch, train_loader, optimizer):
